@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>KarabakhisAzerbaijan!</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+<style>
+	body { margin: 0; padding: 0; }
+	#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  #menu {
+          position: absolute;
+          background: #fff;
+          padding: 10px;
+          font-family: 'Open Sans', sans-serif;
+      }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="menu">
+    <input
+        id="streets-v11"
+        type="radio"
+        name="rtoggle"
+        value="streets"
+        checked="checked"
+    />
+    <label for="streets-v11">streets</label>
+    <input id="light-v10" type="radio" name="rtoggle" value="light" />
+    <label for="light-v10">light</label>
+    <input id="dark-v10" type="radio" name="rtoggle" value="dark" />
+    <label for="dark-v10">dark</label>
+    <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
+    <label for="outdoors-v11">outdoors</label>
+    <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" />
+    <label for="satellite-v9">satellite</label>
+</div>
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZWx2aW5hZ2EiLCJhIjoiY2tnbmtiNHl2MGd5cTMwcHAwNml6N293MyJ9.vdwdqeJUCMOmaW4MO3zAsA';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [47.051, 39.528],
+      zoom: 6
+    });
+    // layerId = 'streets-v11'
+    var layerList = document.getElementById('menu');
+    var inputs = layerList.getElementsByTagName('input');
+
+    function switchLayer(layer) {
+        var layerId = layer.target.id;
+        map.setStyle('mapbox://styles/mapbox/' + layerId);
+    }
+
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].onclick = switchLayer;
+    }
+
+
+    // Change Map layers
+
+
+    map.on('load', function () {
+        map.addSource('national-park', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [
+                                [
+                                    [47.051, 39.528],
+                                    [47.051, 39.528],
+                                    [46.275349, 39.541646],
+                                    [46.246768, 39.541017],
+                                    [46.251343, 39.423383],
+                                    [46.32687, 39.423768],
+                                    [46.360619, 39.43479],
+                                    [46.363694, 39.399124],
+                                    [46.446713, 39.399197],
+                                    [46.446711, 39.423791],
+                                    [46.572133, 39.423548],
+                                    [46.577415, 39.550766],
+                                    [46.546486, 39.558107],
+                                    [46.520284, 39.572459],
+                                    [46.487219, 39.550822],
+                                    [46.446951, 39.56319],
+                                    [46.370644, 39.563267],
+                                    [46.353637, 39.584978]
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.0316, 39.5295]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Murov - Azərbaycan Respublikası ərazisində 10 km enində və 70 km uzunluğunda ərazini əhatə edən dağ silsiləsi.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.3112452, 40.2699991]
+                            // Murov
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.937839, 39.150558]
+                            // Xudaferin
+                        }
+                    },
+                    //
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': [
+                              [-122.48369693756104, 37.83381888486939],
+[-122.48348236083984, 37.83317489144141],
+[-122.48339653015138, 37.83270036637107],
+[-122.48356819152832, 37.832056363179625],
+[-122.48404026031496, 37.83114119107971],
+[-122.48404026031496, 37.83049717427869],
+[-122.48348236083984, 37.829920943955045],
+[-122.48356819152832, 37.82954808664175],
+[-122.48507022857666, 37.82944639795659],
+[-122.48610019683838, 37.82880236636284],
+[-122.48695850372314, 37.82931081282506],
+[-122.48700141906738, 37.83080223556934],
+[-122.48751640319824, 37.83168351665737],
+[-122.48803138732912, 37.832158048267786],
+[-122.48888969421387, 37.83297152392784],
+[-122.48987674713133, 37.83263257682617],
+[-122.49043464660643, 37.832937629287755],
+[-122.49125003814696, 37.832429207817725],
+[-122.49163627624512, 37.832564787218985],
+[-122.49223709106445, 37.83337825839438],
+[-122.49378204345702, 37.83368330777276]
+                            ]
+                        }
+                      },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                            'description':
+                                '<strong>Mad Men Season Five Finale Watch Party</strong><p>Head to Lounge 201 (201 Massachusetts Avenue NE) Sunday for a <a href="http://madmens5finale.eventbrite.com/" target="_blank" title="Opens in a new window">Mad Men Season Five Finale Watch Party</a>, complete with 60s costume contest, Mad Men trivia, and retro food and drink. 8:00-11:00 p.m. $10 general admission, $20 admission and two hour open bar.</p>',
+                              'icon': 'theatre'
+                        },
+                        'geometry': {
+                        'type': 'Point',
+                        'coordinates': [49.7148755, 40.394508]
+                        }
+                        },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Some',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.7129231, 39.0290767]
+                            // Mincivan
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.1496, 39.609]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.6548, 39.098]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.0305, 39.4267]
+                        }
+                    }
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'park-boundary',
+            'type': 'fill',
+            'source': 'national-park',
+            'paint': {
+                'fill-color': '#888888',
+                'fill-opacity': 0.4
+            },
+            'filter': ['==', '$type', 'Polygon']
+        });
+
+        map.addLayer({
+            'id': 'park-volcanoes',
+            'type': 'circle',
+            'source': 'national-park',
+            'paint': {
+                'circle-radius': 8,
+                'circle-color': 'green'
+            },
+            'filter': ['==', '$type', 'Point']
+        });
+        map.addLayer({
+            'id': 'park-volcanoes',
+            'type': 'line',
+            'source': 'national-park',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#888',
+                'line-width': 888
+            }
+        });
+        map.on('click', 'park-volcanoes', function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = e.features[0].properties.description;
+
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on('mouseenter', 'park-volcanoes', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'park-volcanoes', function () {
+            map.getCanvas().style.cursor = '';
+        });
+
+    });
+
+    // Adding Map Controls
+
+    map.addControl(new mapboxgl.NavigationControl());
+</script>
+
+</body>
+</html>
