@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>KarabakhisAzerbaijan!</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+<style>
+	body { margin: 0; padding: 0; }
+	#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  #menu {
+          position: absolute;
+          background: #fff;
+          padding: 5px;
+          margin-left: 550px;
+          font-family: 'Open Sans', sans-serif;
+      }
+  .coordinates {
+          background: rgba(0, 0, 0, 0.5);
+          color: #fff;
+          position: absolute;
+          bottom: 40px;
+          left: 10px;
+          padding: 5px 10px;
+          margin: 0;
+          font-size: 11px;
+          line-height: 18px;
+          border-radius: 3px;
+          display: none;
+        }
+  #buttons {
+    width: 50%;
+    margin: 0 auto;
+    }
+  .button {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    width: 20%;
+    padding: 8px;
+    border-radius: 3px;
+    margin-top: 10px;
+    font-size: 12px;
+    text-align: center;
+    color: #fff;
+    background: #ee8a65;
+    font-family: sans-serif;
+    font-weight: bold;
+    }
+
+  #info {
+    display: block;
+    position: fixed;
+    margin: auto;
+    width: 40%;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+    color: #000;
+    bottom: 0;
+    right: 25%;
+    left: 25%;
+    align: center;
+    background: rgba(0, 0, 0, 0.5);
+
+    /* background: #fff; */
+    }
+</style>
+
+
+</head>
+<body>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css" type="text/css"/>
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
+  <link
+rel="stylesheet"
+href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css"
+type="text/css"
+/>
+
+<div id="map"></div>
+
+{# Langs #}
+<ul id="buttons">
+  <li id="button-fr" class="button">French</li>
+  <li id="button-ru" class="button">Russian</li>
+  <li id="button-de" class="button">German</li>
+  <li id="button-es" class="button">Spanish</li>
+</ul>
+
+<pre id="coordinates" class="coordinates"></pre>
+<pre id="info"></pre>
+
+<div id="menu">
+    <input
+        id="streets-v11"
+        type="radio"
+        name="rtoggle"
+        value="streets"
+        checked="checked"
+    />
+    <label for="streets-v11">streets</label>
+    <input id="light-v10" type="radio" name="rtoggle" value="light" />
+    <label for="light-v10">light</label>
+    <input id="dark-v10" type="radio" name="rtoggle" value="dark" />
+    <label for="dark-v10">dark</label>
+    <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
+    <label for="outdoors-v11">outdoors</label>
+    <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" />
+    <label for="satellite-v9">satellite</label>
+</div>
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZWx2aW5hZ2EiLCJhIjoiY2tnbmtiNHl2MGd5cTMwcHAwNml6N293MyJ9.vdwdqeJUCMOmaW4MO3zAsA';
+    var coordinates = document.getElementById('coordinates');
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [47.051, 39.528],
+      zoom: 6,
+      pitch: 20, // pitch in degrees
+      // bearing: 10 // bearing in degrees
+    });
+    // layerId = 'streets-v11'
+    var layerList = document.getElementById('menu');
+    var inputs = layerList.getElementsByTagName('input');
+
+    function switchLayer(layer) {
+        var layerId = layer.target.id;
+        map.setStyle('mapbox://styles/mapbox/' + layerId);
+    }
+
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].onclick = switchLayer;
+    }
+
+
+    // Change Map layers
+
+
+    map.on('load', function () {
+        map.addSource('national-park', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [
+                                [
+                                    [47.051, 39.528],
+                                    [47.051, 39.528],
+                                    [46.275349, 39.541646],
+                                    [46.246768, 39.541017],
+                                    [46.251343, 39.423383],
+                                    [46.32687, 39.423768],
+                                    [46.360619, 39.43479],
+                                    [46.363694, 39.399124],
+                                    [46.446713, 39.399197],
+                                    [46.446711, 39.423791],
+                                    [46.572133, 39.423548],
+                                    [46.577415, 39.550766],
+                                    [46.546486, 39.558107],
+                                    [46.520284, 39.572459],
+                                    [46.487219, 39.550822],
+                                    [46.446951, 39.56319],
+                                    [46.370644, 39.563267],
+                                    [46.353637, 39.584978]
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Hadrut — Azərbaycan Respublikasının Xocavənd rayonunun Hadrut qəsəbə inzibati ərazi dairəsində qəsəbə.[1] Ermənistan Respublikası Silahlı Qüvvələri tərəfindən 2 oktyabr 1992-ci ildə işğal edilmişdir. 9 oktyabr 2020-ci ildə Azərbaycan Silahlı Qüvvələrinin həyata keçirdiyi hərbi əməliyyatlar nəticəsində azad edilmişdir.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.0316, 39.5295]
+                            // Hadrut
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Murov - Azərbaycan Respublikası ərazisində 10 km enində və 70 km uzunluğunda ərazini əhatə edən dağ silsiləsi.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.3112452, 40.2699991]
+                            // Murov
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Xudafərin körpüləri — Azərbaycanı və İranı birləşdirən, Azərbaycanın Cəbrayıl rayonu ilə İranın Xudafərin şəhristanı arasında yerləşən, Araz çayı üzərində salınmış iki körpü.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.937839, 39.150558]
+                            // Xudaferin
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Qubadlı şəhəri — Azərbaycanın Qubadlı rayonunun inzibati mərkəzi, Qubadlı şəhər inzibati ərazi dairəsində şəhər.[1] 1993-cü ilin 31 avqust tarixində Ermənistan Silahlı Qüvvələri tərəfindən işğal edilmişdir. 25 oktyabr 2020-ci il Qubadlı şəhəri işğalçılardan azad olunub. 2020-ci il 25 oktyabr tarixində Azərbaycan Silahlı Qüvvələrinin tərkibində olan rəşadətli Azərbaycan Ordusu Qubadlı şəhərini işğaldan azad etmişdir. Bunu öz Twitter hesabında Azərbaycan Respublikasının Prezidenti İlham Əliyev bildirmişdir.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.6149, 39.3334]
+                            // Qubadli
+                        }
+                    },
+                    //
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': [
+                              [-122.48369693756104, 37.83381888486939],
+[-122.48348236083984, 37.83317489144141],
+[-122.48339653015138, 37.83270036637107],
+[-122.48356819152832, 37.832056363179625],
+[-122.48404026031496, 37.83114119107971],
+[-122.48404026031496, 37.83049717427869],
+[-122.48348236083984, 37.829920943955045],
+[-122.48356819152832, 37.82954808664175],
+[-122.48507022857666, 37.82944639795659],
+[-122.48610019683838, 37.82880236636284],
+[-122.48695850372314, 37.82931081282506],
+[-122.48700141906738, 37.83080223556934],
+[-122.48751640319824, 37.83168351665737],
+[-122.48803138732912, 37.832158048267786],
+[-122.48888969421387, 37.83297152392784],
+[-122.48987674713133, 37.83263257682617],
+[-122.49043464660643, 37.832937629287755],
+[-122.49125003814696, 37.832429207817725],
+[-122.49163627624512, 37.832564787218985],
+[-122.49223709106445, 37.83337825839438],
+[-122.49378204345702, 37.83368330777276]
+                            ]
+                        }
+                      },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                            'description':
+                                '<strong>Mad Men Season Five Finale Watch Party</strong><p>Head to Lounge 201 (201 Massachusetts Avenue NE) Sunday for a <a href="http://madmens5finale.eventbrite.com/" target="_blank" title="Opens in a new window">Mad Men Season Five Finale Watch Party</a>, complete with 60s costume contest, Mad Men trivia, and retro food and drink. 8:00-11:00 p.m. $10 general admission, $20 admission and two hour open bar.</p>',
+                              'icon': 'theatre'
+                        },
+                        'geometry': {
+                        'type': 'Point',
+                        'coordinates': [49.7148755, 40.394508]
+                        // Baku
+                        }
+                        },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Mincivan — Azərbaycan Respublikasının Zəngilan rayonunun Mincivan qəsəbə inzibati ərazi dairəsində şəhər tipli qəsəbə.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.7129231, 39.0290767]
+                            // Mincivan
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Füzuli rayonu — Azərbaycan Respublikasında inzibati ərazi vahidi. 1993-cü ildən ərazinin bir hissəsi Ermənistan silahlı qüvvələri tərəfindən işğal edilib. 2020-ci il 17 oktyabr tarixində Şəhər işğaldan azad olunmuşdur. Füzuli Qarabağ dağ silsiləsinin cənub şərq ətəklərindən Araz çayına qədər maili düzənlik və alçaq sahələri əhatə edir. O, Cəbrayıl, Xocavənd, Ağcabədi, Beyləqan rayonları və Araz çayı boyunca İranla həmsərhəddir.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.1496, 39.609]
+                            // Fuzuli
+
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Zəngilan rayonu — Azərbaycan Respublikasında inzibati-ərazi vahidi. Kiçik Qafqaz dağ silsiləsinin cənub-şərqində, Araz çayının sol sahilində yerləşir. Qərbdə və şimal-qərbdə Ermənistan Respublikasının Sünik mərzi ilə, cənubda və cənub-şərqdə İran İslam Respublikasının Şərqi Azərbaycan ostanı ilə həmsərhəddir. İnzibati mərkəzi Zəngilan şəhəridir.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [46.6548, 39.098]
+                            // Zengilan
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'properties': {
+                          'description':
+                          'Cəbrayıl rayonu — Azərbaycan Respublikasında inzibati – ərazi vahidi. İnzibati mərkəzi Cəbrayıl şəhəridir. Cəbrayıl rayonu 8 avqust 1930-cu ildə təşkil edilmişdir. 4 yanvar 1963-cü ildə ləğv edilərək Füzuli rayonuna birləşdirilmiş, 17 iyun 1964-cü ildə yenidən yaradılmışdır. 23 avqust 1993-cü il tarixində rayon Ermənistan ordusu tərəfindən işğal edilmişdir. İşğal nəticəsində rayona 13,928 milyard ABŞ dolları məbləğində ziyan dəyib. Cəbrayıllı məcburi köçkünlər respublikanın 58 rayonunun 2000-dək yaşayış məntəqəsində, çadır düşərgələrində, yük vaqonlarında və yataqxanalarda məskunlaşıblar. 4 oktyabr 2020-ci ildə rayonun mərkəzi və bir sıra kəndləri işğaldan azad olunaraq yenidən Azərbaycan torpaqlarına birləşdirildi.',
+                          'icon': 'theatre'
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [47.0305, 39.4267]
+                          // Cebrayil
+                        }
+                    }
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'park-boundary',
+            'type': 'fill',
+            'source': 'national-park',
+            'paint': {
+                'fill-color': '#888888',
+                'fill-opacity': 0.4
+            },
+            'filter': ['==', '$type', 'Polygon']
+        });
+
+        map.addLayer({
+            'id': 'park-volcanoes',
+            'type': 'circle',
+            'source': 'national-park',
+            'paint': {
+                'circle-radius': 8,
+                'circle-color': 'green'
+            },
+            'filter': ['==', '$type', 'Point']
+        });
+        map.addLayer({
+            'id': 'park-volcanoes',
+            'type': 'line',
+            'source': 'national-park',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#888',
+                'line-width': 888
+            }
+        });
+        // Add popup
+        var popup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false
+        });
+        // click
+        map.on('mouseenter', 'park-volcanoes', function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = e.features[0].properties.description;
+
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            // var popup = new mapboxgl.Popup()
+            //     .setLngLat(coordinates)
+            //     .setHTML(description)
+            //     .addTo(map);
+            // Set popup
+            popup.setLngLat(coordinates).setHTML(description).addTo(map);
+
+        });
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on('mouseenter', 'park-volcanoes', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'park-volcanoes', function () {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+
+        });
+
+    });
+    // Center on closeOnClick
+    map.on('click', 'park-volcanoes', function (e) {
+      map.flyTo({
+        center: e.features[0].geometry.coordinates
+      });
+    });
+
+    // Add search
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        placeholder: "       Enter Karabakh (location)"
+      })
+    );
+    // Adding Map Controls
+    map.addControl(new mapboxgl.NavigationControl());
+    // Add Fullscreencontrol
+    map.addControl(new mapboxgl.FullscreenControl());
+    // Locate the user
+    map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      })
+    );
+    // add directions
+    map.addControl(
+      new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        interactive: false,
+        alternatives: true,
+        controls: {
+		        profileSwitcher: false
+	         },
+      }),
+      'top-left'
+    );
+
+    // create a custom style layer to implement the WebGL content
+    var highlightLayer = {
+        id: 'highlight',
+        type: 'custom',
+
+        // method called when the layer is added to the map
+        // https://docs.mapbox.com/mapbox-gl-js/api/#styleimageinterface#onadd
+        onAdd: function (map, gl) {
+            // create GLSL source for vertex shader
+            var vertexSource =
+                '' +
+                'uniform mat4 u_matrix;' +
+                'attribute vec2 a_pos;' +
+                'void main() {' +
+                '    gl_Position = u_matrix * vec4(a_pos, 0.0, 1.0);' +
+                '}';
+
+            // create GLSL source for fragment shader
+            var fragmentSource =
+                '' +
+                'void main() {' +
+                '    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);' +
+                '}';
+
+            // create a vertex shader
+            var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader, vertexSource);
+            gl.compileShader(vertexShader);
+
+            // create a fragment shader
+            var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader, fragmentSource);
+            gl.compileShader(fragmentShader);
+
+            // link the two shaders into a WebGL program
+            this.program = gl.createProgram();
+            gl.attachShader(this.program, vertexShader);
+            gl.attachShader(this.program, fragmentShader);
+            gl.linkProgram(this.program);
+
+            this.aPos = gl.getAttribLocation(this.program, 'a_pos');
+
+            // define vertices of the triangle to be rendered in the custom style layer
+            var helsinki = mapboxgl.MercatorCoordinate.fromLngLat({
+                lng: 46.1982,
+                lat: 40.0664,
+                // Kalbacar
+            });
+            var berlin = mapboxgl.MercatorCoordinate.fromLngLat({
+                lng: 46.751346,
+                lat: 39.763872
+                // susa
+            });
+            var kyiv = mapboxgl.MercatorCoordinate.fromLngLat({
+                lng: 46.3181,
+                lat: 39.7118
+            });
+
+            // create and initialize a WebGLBuffer to store vertex and color data
+            this.buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array([
+                    helsinki.x,
+                    helsinki.y,
+                    berlin.x,
+                    berlin.y,
+                    kyiv.x,
+                    kyiv.y
+                ]),
+                gl.STATIC_DRAW
+            );
+        },
+
+        // method fired on each animation frame
+        // https://docs.mapbox.com/mapbox-gl-js/api/#map.event:render
+        render: function (gl, matrix) {
+            gl.useProgram(this.program);
+            gl.uniformMatrix4fv(
+                gl.getUniformLocation(this.program, 'u_matrix'),
+                false,
+                matrix
+            );
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+            gl.enableVertexAttribArray(this.aPos);
+            gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
+        }
+    };
+
+    // add the custom style layer to the map
+    map.on('load', function () {
+        map.addLayer(highlightLayer, 'building');
+    });
+
+    var marker = new mapboxgl.Marker({
+      draggable: true
+    })
+    .setLngLat([47.73181, 40.56118])
+    .addTo(map);
+
+    function onDragEnd() {
+      var lngLat = marker.getLngLat();
+      coordinates.style.display = 'block';
+      coordinates.innerHTML =
+      'Longitude: ' + lngLat.lng + '<br />Latitude: ' + lngLat.lat;
+    }
+
+    marker.on('dragend', onDragEnd);
+
+    // Adding different langs
+    document.getElementById('buttons').addEventListener('click', function (event) {
+          var language = event.target.id.substr('button-'.length);
+// Use setLayoutProperty to set the value of a layout property in a style layer.
+// The three arguments are the id of the layer, the name of the layout property,
+// and the new property value.
+          map.setLayoutProperty('country-label', 'text-field', [
+            'get',
+            'name_' + language
+          ]);
+        });
+
+    // Mouse pointer loc
+    map.on('mousemove', function (e) {
+      document.getElementById('info').innerHTML =
+    // e.point is the x, y coordinates of the mousemove event relative
+    // to the top-left corner of the map
+      JSON.stringify(e.point) +
+      '<br />' +
+    // e.lngLat is the longitude, latitude geographical position of the event
+      JSON.stringify(e.lngLat.wrap());
+    });
+</script>
+
+</body>
+</html>
